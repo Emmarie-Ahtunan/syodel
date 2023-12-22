@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 # Streamlit app content
-st.title("Sine Wave Animation")
+st.title("Animated Plot with Speed and Pixel Size Control")
 
 # Slider widgets for user input
 start = st.slider("Start", min_value=0.0, max_value=float(400), step=10.0)
@@ -40,14 +40,12 @@ num_frames = max(int((stop - start) / step), 1)
 frames = []
 for frame in range(num_frames):
     animate(frame)
-    fig.canvas.draw()
-    image = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
-    image = image.reshape(fig.canvas.get_width_height()[::-1] + (4,))[:, :, :3]
-    frames.append(image)
+    frames.append(fig.canvas.copy_from_bbox(ax.bbox).tostring_rgb())
 
 # Display the animation frames in Streamlit
 for frame in frames:
-    st.image(frame)
+    img = np.frombuffer(frame, dtype=np.uint8).reshape((fig.canvas.get_width_height()[::-1] + (3,)))
+    st.image(img)
 
 # Start the Streamlit app
 if __name__ == "__main__":
